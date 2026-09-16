@@ -1,0 +1,6 @@
+name: 'HAMH Matter Electrical Meter'
+packageKey: 'custom.hamh-matter-electrical-meter'
+permissions:
+  matter: {}
+description: 'Custom Matter Electrical Meter (0x0514) driver for HAMH'
+vendorSupportInformation: 'Local custom driver'

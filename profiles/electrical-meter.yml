@@ -1,0 +1,50 @@
+name: electrical-meter
+components:
+  - id: main
+    capabilities:
+      - id: powerMeter
+        version: 1
+      - id: energyMeter
+        version: 1
+      - id: refresh
+        version: 1
+    categories:
+      - name: CurbPowerMeter
+preferences:
+  - name: pollInterval
+    title: "조회(폴링) 주기 (초)"
+    description: "HA에서 전력값을 새로 조회해 올 간격을 초 단위로 설정합니다. (기본값: 15초, 최소: 5초, 0 입력 시 자동 폴링 끄기)"
+    required: false
+    preferenceType: integer
+    definition:
+      minimum: 0
+      maximum: 3600
+      default: 15
+  - name: powerThreshold
+    title: "최소 변화량 필터 (W)"
+    description: "설정한 와트(W) 이상 전력이 변했을 때만 기록에 남깁니다. 미세한 노이즈 기록 방지 (기본값: 1.0W, 0은 모든 변화 기록)"
+    required: false
+    preferenceType: number
+    definition:
+      minimum: 0
+      maximum: 500
+      default: 1.0
+  - name: decimalPlaces
+    title: "소수점 표시 방식"
+    description: "전력(W) 표시 시 소수점 자리수를 선택합니다."
+    required: false
+    preferenceType: enumeration
+    definition:
+      options:
+        "0": "정수 (예: 405 W)"
+        "1": "소수점 1자리 (예: 405.2 W)"
+      default: "1"
+  - name: powerMultiplier
+    title: "전력 보정 계수 (배율)"
+    description: "측정된 전력값에 곱할 보정 배율입니다. (기본값: 1.0, 5% 높이려면 1.05, 5% 낮추려면 0.95)"
+    required: false
+    preferenceType: number
+    definition:
+      minimum: 0.1
+      maximum: 3.0
+      default: 1.0

@@ -1,0 +1,6 @@
+matterGeneric:
+  - id: "hamh/electrical-meter"
+    deviceLabel: "HAMH Electrical Meter"
+    deviceTypes:
+      - id: 0x0514
+    deviceProfileName: electrical-meter
