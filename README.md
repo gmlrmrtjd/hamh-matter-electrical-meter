@@ -1,51 +1,115 @@
 # HAMH Matter Electrical Meter (0x0514)
 
-HAMH의 `Electrical Meter (Power/Energy/Voltage/Current)`가 만드는
-Matter Device Type `0x0514`를 SmartThings에서 `powerMeter` / `energyMeter`
-Capability로 표시하기 위한 테스트용 커스텀 Edge Driver입니다.
+Home Assistant Matter Hub(HAMH)를 통해 SmartThings로 공유한 전력미터의
+전력값이 정상적으로 표시되지 않는 문제를 해결하기 위한 SmartThings Edge Driver입니다.
 
-## 포함 기능
-- ElectricalPowerMeasurement.ActivePower -> SmartThings powerMeter (W)
-- ElectricalEnergyMeasurement.CumulativeEnergyImported -> SmartThings energyMeter (Wh)
-- Refresh 버튼 지원
-- **스마트싱스 앱 설정 (Preferences)**
-  1. **조회(폴링) 주기**: 기본 15초 (0 입력 시 폴링 비활성화)
-  2. **최소 변화량 필터 (Threshold)**: 기본 1.0W (미세한 소수점 노이즈로 인한 기록 도배 방지)
-  3. **소수점 표시 방식**: 정수 (예: 405 W) vs 소수점 1자리 (예: 405.2 W)
-  4. **전력 보정 계수 (Multiplier)**: 기본 1.0 (CT 센서 오차 보정용 배율)
+HAMH에서 생성하는 Matter Device Type `0x0514` (Electrical Meter)의 데이터를
+SmartThings의 `powerMeter` / `energyMeter` Capability로 표시합니다.
 
 ## 설치
 
-SmartThings 공식 CLI와 Edge CLI plugin이 설치되어 있어야 합니다.
+아래 링크를 통해 SmartThings Edge Driver 채널에 등록합니다.
 
-압축을 푼 뒤 이 폴더의 상위 경로에서:
+**[HAMH Custom Drivers 채널 등록](https://bestow-regional.api.smartthings.com/invite/kVM55JnveKM5)**
 
-    smartthings edge:drivers:package ./hamh-matter-electrical-meter --install
+채널 등록 후:
 
-처음 실행할 경우 CLI가 개인 Driver Channel과 대상 Hub를 선택하도록 안내할 수 있습니다.
+1. `HAMH Matter Electrical Meter` 드라이버를 설치합니다.
+2. SmartThings 앱에서 HAMH를 통해 추가된 전력미터를 선택합니다.
+3. **드라이버 → 다른 드라이버 선택**으로 이동합니다.
+4. `HAMH Matter Electrical Meter`를 선택합니다.
 
-수동으로 진행할 경우 공식 흐름은 다음과 같습니다.
+드라이버가 적용되면 기존에 `연결됨`으로만 표시되던 전력미터에서
+전력 및 에너지 값을 확인할 수 있습니다.
 
-    smartthings edge:channels:create
-    smartthings edge:channels:enroll
-    smartthings edge:drivers:package ./hamh-matter-electrical-meter
-    smartthings edge:channels:assign
-    smartthings edge:drivers:install
+## 지원 기능
 
-## 기존 기기에 적용
+- **현재 전력**
+  - Matter `ElectricalPowerMeasurement.ActivePower`
+  - SmartThings `powerMeter`
+  - 단위: W
 
-드라이버를 Hub에 설치한 뒤 SmartThings 앱에서
-`전력미터` 장치의 드라이버 변경 메뉴가 표시되면
-`HAMH Matter Electrical Meter`로 변경합니다.
+- **누적 에너지**
+  - Matter `ElectricalEnergyMeasurement.CumulativeEnergyImported`
+  - SmartThings `energyMeter`
+  - 단위: Wh
 
-드라이버 변경 메뉴에 이 드라이버가 나타나지 않으면,
-해당 bridged Matter endpoint에 대해 SmartThings가 사용자 드라이버 전환을 허용하지 않는 상태일 수 있습니다.
-그 경우 Edge CLI 로그를 확인한 뒤 다음 방법을 결정해야 합니다.
+- **Refresh**
+  - SmartThings에서 현재 측정값을 새로 조회할 수 있습니다.
 
-## 로그
+## 설정
 
-    smartthings edge:drivers:logcat
+SmartThings 앱의 드라이버 설정에서 다음 항목을 변경할 수 있습니다.
+
+### 조회(폴링) 주기
+
+기본값은 **15초**입니다.
+
+`0`으로 설정하면 폴링을 비활성화할 수 있습니다.
+
+### 최소 변화량 필터 (Threshold)
+
+기본값은 **1.0 W**입니다.
+
+미세한 소수점 단위의 전력 변화로 인해 SmartThings 이벤트 기록이
+지나치게 많이 생성되는 것을 줄이기 위한 설정입니다.
+
+### 소수점 표시 방식
+
+전력값의 표시 방식을 선택할 수 있습니다.
+
+- 정수: `405 W`
+- 소수점 1자리: `405.2 W`
+
+### 전력 보정 계수 (Multiplier)
+
+기본값은 **1.0**입니다.
+
+측정값 보정이 필요한 경우 배율을 설정할 수 있습니다.
+
+예를 들어 실제 소비전력과 측정값에 차이가 있는 경우 보정에 사용할 수 있습니다.
+
+## 문제 해결
+
+드라이버 설치 후에도 기존 드라이버가 사용되고 있다면 SmartThings 앱에서
+해당 전력미터의 **드라이버 → 다른 드라이버 선택** 메뉴를 확인하세요.
+
+목록에서 `HAMH Matter Electrical Meter`를 선택하면 됩니다.
+
+드라이버 변경 메뉴 또는 드라이버가 나타나지 않는 경우에는
+SmartThings의 기기 상태나 Matter endpoint 인식 상태에 따라
+사용자 드라이버 변경이 제한된 경우일 수 있습니다.
+
+## 로그 확인
+
+문제 확인이 필요한 경우 SmartThings CLI에서 다음 명령을 사용할 수 있습니다.
+
+```bash
+smartthings edge:drivers:logcat
+```
 
 목록에서 `HAMH Matter Electrical Meter`를 선택합니다.
 
-전력값이 들어오면 ActivePower 관련 attribute report가 보여야 합니다.
+정상적으로 전력 데이터가 수신되고 있다면
+`ActivePower` 관련 Matter Attribute Report를 확인할 수 있습니다.
+
+## 소스 코드
+
+이 저장소에는 `HAMH Matter Electrical Meter` Edge Driver의 소스 코드가 공개되어 있습니다.
+
+주요 파일:
+
+- `config.yml` - Edge Driver 설정
+- `fingerprints.yml` - Matter 기기 매칭 정보
+- `profiles/electrical-meter.yml` - SmartThings Device Profile
+- `src/init.lua` - 드라이버 동작 코드
+
+## 이용약관
+
+이 드라이버는 개인 프로젝트로 제공됩니다.
+
+사용 전 [TERMS.md](./TERMS.md)를 확인해 주세요.
+
+## 개발자
+
+라이언킹구하기
